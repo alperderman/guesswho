@@ -5,9 +5,9 @@ Objective of this game is you try to guess the character of your opponent before
 
 Side Note: Your opponent is the computer and it is optimized to choose the best questions for maximum amount of elemination as possible, so consider that in mind while playing.
 
-[Click here to play!](https://alperderman.com/guesswho/ | width=100)
+[Click here to play!](https://alperderman.com/guesswho/)
 
-![Guess Who?](gw-logo.png)
+![Guess Who?](gw-logo.png | width=100)
 
 ## Reference
 ⋅⋅* [CognitiveJS](https://github.com/alperderman/CognitiveJS)
