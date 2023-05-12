@@ -1,0 +1,132 @@
+-----------ELEMINATIVE QUESTIONS WITH NO BIAS-----------
+
+
+with entq as (
+    select * from
+    p inner join e, q on p.e_id = e.e_id and p.q_id = q.q_id
+    group by p.e_id, p.q_id
+),
+ent as (
+    select count(*) total from (select e_id from entq group by e_id)
+)
+select entq.q_id, entq.q_title,
+( ent.total-sum(case when entq.yes > entq.no then 1 else 0 end) ) max_eleminate,
+( sum(case when entq.yes > entq.no then 1 else 0 end) ) min_eleminate
+from entq, ent
+group by q_id
+having min_eleminate < ent.total
+order by min_eleminate desc, max_eleminate desc
+
+
+
+-----------ELEMINATIVE QUESTIONS WITH EXCLUDE AND NO BIAS-----------
+
+
+with entq as (
+    select * from
+    p inner join e, q on p.e_id = e.e_id and p.q_id = q.q_id
+    where p.q_id != 12 and p.q_id != 17 and p.q_id != 8 and
+    p.e_id in 
+        (
+            select p.e_id from p inner join e, q on p.e_id = e.e_id and p.q_id = q.q_id
+            where (p.q_id = 12 and p.yes > p.no) or (p.q_id = 8 and p.yes > p.no)
+            group by p.e_id
+            having count(*) = 2
+        ) and 
+    p.e_id not in 
+        (
+            select p.e_id from p inner join e, q on p.e_id = e.e_id and p.q_id = q.q_id
+            where (p.q_id = 17 and p.yes > p.no)
+            group by p.e_id
+        )
+    group by p.e_id, p.q_id
+),
+ent as (
+    select count(*) total from (select e_id from entq group by e_id)
+)
+select entq.q_id, entq.q_title,
+( ent.total-sum(case when entq.yes > entq.no then 1 else 0 end) ) max_eleminate,
+( sum(case when entq.yes > entq.no then 1 else 0 end) ) min_eleminate
+from entq, ent
+group by q_id
+having min_eleminate < ent.total
+order by min_eleminate desc, max_eleminate desc
+
+-----------ELEMINATIVE QUESTIONS WITH EXCLUDE, SELECTIVE AND NO BIAS-----------
+
+
+with entq as (
+    select * from
+    p inner join e, q on p.e_id = e.e_id and p.q_id = q.q_id
+    where p.q_id != 12 and p.q_id != 17 and p.q_id != 8 and p.q_id != 1 and
+    p.e_id in 
+        (
+            select p.e_id from p inner join e, q on p.e_id = e.e_id and p.q_id = q.q_id
+            where (p.q_id = 12 and p.yes > p.no) or (p.q_id = 8 and p.yes > p.no)
+            group by p.e_id
+            having count(*) = 2
+        ) and 
+    p.e_id not in 
+        (
+            select p.e_id from p inner join e, q on p.e_id = e.e_id and p.q_id = q.q_id
+            where (p.q_id = 17 and p.yes > p.no) or (p.q_id = 1 and p.yes > p.no)
+            group by p.e_id
+        )
+    group by p.e_id, p.q_id
+),
+ent as (
+    select count(*) total from (select e_id from entq group by e_id)
+)
+select (case when ent.total > 1 then entq.q_id else entq.e_id end) id, (case when ent.total > 1 then entq.q_title else entq.e_title end) name,
+(case when ent.total > 1 then (ent.total-sum(case when entq.yes > entq.no then 1 else 0 end)) else null end) max_eleminate,
+(case when ent.total > 1 then (sum(case when entq.yes > entq.no then 1 else 0 end)) else null end) min_eleminate
+from entq, ent
+group by (case when ent.total > 1 then q_id else e_id end)
+having (min_eleminate < ent.total) or (min_eleminate is null)
+order by min_eleminate desc, max_eleminate desc
+
+
+
+-----------RELEVANT ENTITIES WITH EXCLUDE AND NO BIAS-----------
+
+with pqr as (
+    select *
+    from p inner join e, q on p.e_id = e.e_id and p.q_id = q.q_id
+    where (p.q_id = 12 and p.yes > p.no)
+    group by p.e_id
+
+    union all
+
+    select *
+    from p inner join e, q on p.e_id = e.e_id and p.q_id = q.q_id
+    where (p.q_id = 8 and p.yes > p.no)
+    group by p.e_id
+
+    union all
+
+    select *
+    from p inner join e, q on p.e_id = e.e_id and p.q_id = q.q_id
+    where p.e_id not in (
+        select p.e_id from p inner join e, q on p.e_id = e.e_id and p.q_id = q.q_id
+        where (p.q_id = 17 and p.yes > p.no)
+    )
+    group by p.e_id
+
+    union all
+    
+    select *
+    from p inner join e, q on p.e_id = e.e_id and p.q_id = q.q_id
+    where p.e_id not in (
+        select p.e_id from p inner join e, q on p.e_id = e.e_id and p.q_id = q.q_id
+        where (p.q_id = 1 and p.yes > p.no)
+    )
+    group by p.e_id
+)
+select pqr.e_id, pqr.e_title,
+( sum(pqr.yes+pqr.no) ) popularity,
+( sum( (pqr.yes+pqr.no)-(round((pqr.yes+pqr.no)-abs(pqr.yes-pqr.no), 2)/2)) ) deviate,
+( round(round(count(*)*100, 2)/4, 2) ) outer_accuracy,
+( round(round(sum( (pqr.yes+pqr.no)-(round((pqr.yes+pqr.no)-abs(pqr.yes-pqr.no), 2)/2)), 2)*100/round( sum(pqr.yes+pqr.no), 2), 2) ) inner_accuracy
+from pqr inner join e, q on pqr.e_id = e.e_id and pqr.q_id = q.q_id
+group by pqr.e_id
+order by outer_accuracy desc, deviate desc, inner_accuracy desc
