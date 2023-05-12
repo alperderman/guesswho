@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Guess Who</title>
+    
+    <link rel="stylesheet" href="uikit/dist/css/uikit.min.css">
+    <link rel="stylesheet" href="uikit/dist/css/uikit.gradient.min.css">
+    <link rel="stylesheet" href="uikit/dist/css/uikit.min.css">
+    <link rel="stylesheet" href="uikit/dist/css/components/tooltip.min.css">
+    <link rel="stylesheet" href="uikit/dist/css/components/tooltip.gradient.min.css">
+    <style>
+        body {
+            padding:5em 0 5em 0;
+        }
+        @keyframes blink {
+            from, to {
+                outline: rgba(0,0,0,0) solid 3px;
+            }
+            50% {
+                outline: #ff0 solid 3px;
+            }
+        }
+        .blink {
+            animation: blink 1s step-end infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="uk-cover-background uk-position-cover uk-height-viewport" style="z-index: 10;background-color: #fff;" data-bind="[loading]" data-prop="if:'%loading%'">
+        <div class="uk-position-cover uk-flex uk-flex-center uk-flex-middle">
+            <div class="uk-width-1-4 uk-width-medium-1-10">
+                <img class="uk-width-1-1 uk-position-relative uk-margin-small-bottom" src="gw-logo.png">
+                <div class="uk-width-1-1 uk-position-relative" style="height: 64px;">
+                    <div class="uk-modal-spinner uk-heading-large"></div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <div data-set="temp:question">
+        <option value="1" data-prop="{text:'%%data.text%%'}, {attr:{value:'%%data.value%%'}}"></option>
+    </div>
+
+    <div class="uk-modal" id="modalInfo">
+        <div class="uk-modal-dialog">
+            <div data-bind="[modalInfo.loading]" data-prop="if:'%modalInfo.loading%'" class="uk-modal-spinner"></div>
+            <div data-bind="[modalInfo.loading]" data-prop="if:'!%modalInfo.loading%'">
+                <div class="uk-grid" data-bind="[modalInfo.img]" data-prop="{if:'%modalInfo.img% != \'\''}">
+                    <div class="uk-width-1-2 uk-width-medium-1-3 uk-container-center">
+                        <div class="uk-panel">
+                            <div class="uk-panel-teaser">
+                                <img class="uk-width-1-1 character uk-position-relative" data-bind="[modalInfo.img]" data-prop="{attr:{'src':'%modalInfo.img%'}}" alt="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p data-bind="[modalInfo.text]" data-prop="text:'%modalInfo.text%'"></p>
+                <div class="uk-modal-footer uk-text-right">
+                    <button class="uk-button uk-button-primary" type="button" data-bind="[modalInfo.callback]" data-prop="event:{click:'%modalInfo.callback%'}">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="uk-modal" id="modalAsk">
+        <div class="uk-modal-dialog">
+            <div data-bind="[modalAsk.loading]" data-prop="if:'%modalAsk.loading%'" class="uk-modal-spinner"></div>
+            <div data-bind="[modalAsk.loading]" data-prop="if:'!%modalAsk.loading%'">
+                <div class="uk-modal-header" data-bind="[modalAsk.question]" data-prop="text:'%modalAsk.question%'"></div>
+                <p data-bind="[modalAsk.answer]" data-prop="text:'%modalAsk.answer%'"></p>
+                <div class="uk-modal-footer uk-text-right">
+                    <button class="uk-button uk-button-primary" type="button" data-prop="event:{click:'modal.ask.hide(true);turn_cpu();'}">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="uk-modal" id="modalGuess">
+        <div class="uk-modal-dialog">
+            <div data-bind="[modalGuess.loading]" data-prop="if:'%modalGuess.loading%'" class="uk-modal-spinner"></div>
+            <div data-bind="[modalGuess.loading]" data-prop="if:'!%modalGuess.loading%'">
+                <div class="uk-modal-header">CPU ASKS...</div>
+                <p data-bind="[modalGuess.answer]" data-prop="text:'%modalGuess.question%'"></p>
+                <div class="uk-modal-footer uk-text-right">
+                    <button class="uk-button uk-button-danger" type="button" data-bind="[modalGuess.answer]" data-prop="{event:{click:'modal.guess.hide(true);turn_you();'}}, {if:'%modalGuess.answer% == \'NO\''}">NO</button>
+                    <button class="uk-button uk-button-success" type="button" data-bind="[modalGuess.answer]" data-prop="{event:{click:'modal.guess.hide(true);turn_you();'}}, {if:'%modalGuess.answer% == \'YES\''}">YES</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="uk-grid" data-bind="[loading]" data-prop="if:'!%loading%'">
+        <div class="uk-width-9-10 uk-width-medium-7-10 uk-container-center">
+            <div class="uk-grid">
+                <div class="uk-width-1-1 uk-margin-large-bottom">
+                    <div class="uk-flex uk-flex-center uk-flex-middle">
+                        <h1 class="uk-flex-item-auto uk-margin-remove uk-text-center" data-bind="[turn]" data-prop="{text:'YOUR TURN', if:'%turn% == 0'}, {text:'CPU TURN', if:'%turn% != 0'}"></h1>
+                        <button class="uk-button uk-button-danger uk-flex-item-none" type="button" data-prop="
+                        {event:{click:'giveup()'}}
+                        ">Give Up</button>
+                    </div>
+                    
+                </div>
+                <div class="uk-width-1-1">
+                    <!--ASK-->
+
+                    <div class="uk-flex">
+                        <button class="uk-button uk-button-primary uk-flex-item-none" type="button" data-bind="[turn]" data-prop="
+                        {attr:{disabled:''}, if:'%turn% != 0'},
+                        {event:{click:'you_guess()'}}
+                        ">Guess</button>
+                        <select class="uk-flex-item-auto" autocomplete="off" name="ask" id="ask" data-bind="[questions][turn][inputAsk]" data-prop="
+                        {repeat:'%questions% as data', temp:'questions'},
+                        {context:{value:'%inputAsk%'}},
+                        {live:'inputAsk'},
+                        {live:'inputAskQ', data:'event.target.options[event.target.selectedIndex].text'},
+                        {attr:{disabled:''},if:'%turn% != 0'},
+                        {class:'blink', if:'%turn% == 0'}
+                        ">
+                            <option data-prop="
+                            {text:'%%data.text%%'},
+                            {attr:{value:'%%data.value%%'}},
+                            {attr:{selected:'', disabled:''}, if:'%data._index% == 0'}
+                            "></option>
+                        </select>
+                        <button class="uk-button uk-flex-item-none" type="button" data-bind="[turn]" data-prop="
+                        {attr:{disabled:''}, if:'%turn% != 0'},
+                        {event:{click:'ask()'}}
+                        ">Ask</button>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div class="uk-grid uk-grid-small">
+                <div class="uk-width-7-10 uk-width-medium-8-10">
+                    <!--CHARACTERS-->
+                    <div class="uk-grid uk-grid-collapse" data-prop="{repeat:'%slots% as slot', temp:'slot'}">
+
+                        <div class="uk-width-1-4 uk-width-medium-1-6">
+                            <div class="uk-panel">
+                                <div class="uk-panel-teaser">
+                                    <img class="uk-width-1-1 character uk-position-relative" style="z-index: 2;" data-prop="{attr:{id:'slot-%%slot._key%%'}},{event:{click:'flipChar()'}, _prevent:true}, {attr:{'data-char':'%%slot._key%%'}}" alt="">
+                                    <img class="uk-width-1-1 uk-position-cover placeholder" style="z-index: 1;">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="uk-width-3-10 uk-width-medium-2-10">
+                    <!--YOUR CHARACTER-->
+                    <div class="uk-grid">
+                        <div class="uk-width-1-1">
+                            <div class="uk-panel uk-panel-box">
+                                <div class="uk-panel-teaser">
+                                    <img class="uk-width-1-1" id="slot-chosen" alt="">
+                                </div>
+                                <p class="uk-text-center">Your Character</p>
+                            </div>
+                        </div>
+                        <div class="uk-width-1-1 uk-margin-top">
+                            <!--CPU INDICATION-->
+                            <h3 class="uk-text-center uk-margin-remove">CPU Indication</h3>
+                            <div class="uk-grid uk-grid-collapse" data-prop="{repeat:'%cpuSlots% as slot', temp:'cpuSlot'}">
+                                
+                                <div class="uk-width-1-4 uk-width-medium-1-6" data-bind="[cpuSlots][dbE]" data-uk-tooltip data-prop="
+                                {attr:{title:'%dbE.0.values.%slot._index%.1%'}}" style="height: auto;padding: 3px;">
+                                    <div class="uk-position-relative" data-bind="[cpuSlots][dbE]" style="width: 100%;height: 0;padding-top:100%;" data-prop="{style:{backgroundColor:'#35f'}, if:'%%slot%% == false'},
+                                    {style:{backgroundColor:'#f53'}, if:'%%slot%% == true'}"></div>
+                                </div>
+        
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+    <script src="cog.js"></script>
+    <script src="sql.js"></script>
+    <script src="format.js"></script>
+    <script src="uikit/vendor/jquery.js"></script>
+    <script src="uikit/dist/js/uikit.min.js"></script>
+    <script src="uikit/dist/js/components/autocomplete.min.js"></script>
+    <script src="uikit/dist/js/components/tooltip.min.js"></script>
+    <script src="uikit/dist/js/core/modal.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
