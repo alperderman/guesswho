@@ -7,7 +7,7 @@ Side Note: Your opponent is the computer and it is optimized to choose the best 
 
 [Click here to play!](https://alperderman.com/guesswho/)
 
-<img src="gw-logo.png" width="100px">
+[<img src="gw-logo.png" width="100px" />](https://alperderman.com/guesswho/)
 
 ## Reference
 - [CognitiveJS](https://github.com/alperderman/CognitiveJS)
