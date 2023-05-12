@@ -5,7 +5,7 @@ Objective of this game is you try to guess the character of your opponent before
 
 Side Note: Your opponent is the computer and it is optimized to choose the best questions for maximum amount of elemination as possible, so consider that in mind while playing.
 
-[Click here to play!](https://alperderman.com/guesswho/)
+[Click here to play!](https://alperderman.com/guesswho/ | width=100)
 
 ![Guess Who?](gw-logo.png)
 
