@@ -10,7 +10,7 @@ Side Note: Your opponent is the computer and it is optimized to choose the best 
 <img src="gw-logo.png" width="100px">
 
 ## Reference
-⋅⋅* [CognitiveJS](https://github.com/alperderman/CognitiveJS)
-⋅⋅* [UIkit](https://getuikit.com/)
-⋅⋅* [SQL.js](https://github.com/sql-js/sql.js/)
-⋅⋅* [Format](https://github.com/samsonjs/format)
+- [CognitiveJS](https://github.com/alperderman/CognitiveJS)
+- [UIkit](https://getuikit.com/)
+- [SQL.js](https://github.com/sql-js/sql.js/)
+- [Format](https://github.com/samsonjs/format)
