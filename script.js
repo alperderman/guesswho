@@ -4,7 +4,7 @@ cog.data.dbE;
 cog.data.questions;
 cog.data.loading = 1;
 cog.data.status = null;
-cog.data.inputAsk = "1";
+cog.data.inputAsk = "0";
 cog.data.inputAskQ = "";
 cog.data.imgSrc = "gw.jpg";
 
@@ -202,6 +202,7 @@ function restart_game() {
     cog.set("turn", getRand(1));
     cog.set("modalInfo.img", "");
     cog.set("modalInfo.text", "");
+    cog.set("inputAsk", "0");
 
     $(".character").css('opacity', 1);
 
@@ -270,7 +271,7 @@ function turn_you() {
 }
 function turn_cpu() {
     if (cog.get("status") === null) {
-        cog.set("inputAsk", "1");
+        cog.set("inputAsk", "0");
         cog.set("turn", 1);
         cog.set("modalGuess.loading", 1);
         modal.guess.show();
@@ -289,7 +290,7 @@ function flipChar() {
 }
 function ask() {
     cog.set("modalAsk.loading", 1);
-    if (cog.get("inputAsk") != "1") {
+    if (cog.get("inputAsk") != "0") {
         modal.ask.show();
         setTimeout(function(){
             var query = format("select yes, no from p inner join e, q on p.e_id = e.e_id and p.q_id = q.q_id where p.e_id = %d and p.q_id = %d", cog.get("cpuChar"), cog.get("inputAsk"));
