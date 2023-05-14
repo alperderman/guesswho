@@ -124,7 +124,7 @@ function init_chars() {
     }
 }
 function init_q() {
-    var arr = [{text:'Choose your question', value:'1'}], obj;
+    var arr = [{text:'Choose your question', value:'0'}], obj;
     for (var i = 0;i < cog.data.dbQ[0]["values"].length;i++) {
         obj = {value: cog.data.dbQ[0]["values"][i][0], text: cog.data.dbQ[0]["values"][i][1]};
         arr.push(obj);
