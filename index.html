@@ -170,8 +170,8 @@
                                 
                                 <div class="uk-width-1-4 uk-width-medium-1-6" data-bind="[cpuSlots][dbE]" data-uk-tooltip data-prop="
                                 {attr:{title:'%dbE.0.values.%slot._index%.1%'}}" style="height: auto;padding: 3px;">
-                                    <div class="uk-position-relative" data-bind="[cpuSlots][dbE]" style="width: 100%;height: 0;padding-top:100%;" data-prop="{style:{backgroundColor:'#35f'}, if:'%%slot%% == false'},
-                                    {style:{backgroundColor:'#f53'}, if:'%%slot%% == true'}"></div>
+                                    <div class="uk-position-relative" data-bind="[cpuSlots][dbE]" style="width: 100%;height: 0;padding-top:100%;" data-prop="{style:{backgroundColor:'#35f'}, _keep:true, if:'%%slot%% == false'},
+                                    {style:{backgroundColor:'#f53'}, _keep:true, if:'%%slot%% == true'}"></div>
                                 </div>
         
                             </div>
